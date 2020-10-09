@@ -3759,10 +3759,11 @@ func (c *ComparableResources) NetIndex(n *NetworkResource) int {
 const (
 	// JobTypeNomad is reserved for internal system tasks and is
 	// always handled by the CoreScheduler.
-	JobTypeCore    = "_core"
-	JobTypeService = "service"
-	JobTypeBatch   = "batch"
-	JobTypeSystem  = "system"
+	JobTypeCore     = "_core"
+	JobTypeService  = "service"
+	JobTypeBatch    = "batch"
+	JobTypeSystem   = "system"
+	JobTypeSysBatch = "sysbatch"
 )
 
 const (
@@ -4025,7 +4026,7 @@ func (j *Job) Validate() error {
 		mErr.Errors = append(mErr.Errors, errors.New("Job must be in a namespace"))
 	}
 	switch j.Type {
-	case JobTypeCore, JobTypeService, JobTypeBatch, JobTypeSystem:
+	case JobTypeCore, JobTypeService, JobTypeBatch, JobTypeSystem, JobTypeSysBatch:
 	case "":
 		mErr.Errors = append(mErr.Errors, errors.New("Missing job type"))
 	default:
@@ -4117,11 +4118,12 @@ func (j *Job) Validate() error {
 		}
 	}
 
-	// Validate periodic is only used with batch jobs.
+	// Validate periodic is only used with batch or sysbatch jobs.
 	if j.IsPeriodic() && j.Periodic.Enabled {
-		if j.Type != JobTypeBatch {
-			mErr.Errors = append(mErr.Errors,
-				fmt.Errorf("Periodic can only be used with %q scheduler", JobTypeBatch))
+		if j.Type != JobTypeBatch && j.Type != JobTypeSysBatch {
+			mErr.Errors = append(mErr.Errors, fmt.Errorf(
+				"Periodic can only be used with %q or %q scheduler", JobTypeBatch, JobTypeSysBatch,
+			))
 		}
 
 		if err := j.Periodic.Validate(); err != nil {
@@ -4130,9 +4132,10 @@ func (j *Job) Validate() error {
 	}
 
 	if j.IsParameterized() {
-		if j.Type != JobTypeBatch {
-			mErr.Errors = append(mErr.Errors,
-				fmt.Errorf("Parameterized job can only be used with %q scheduler", JobTypeBatch))
+		if j.Type != JobTypeBatch && j.Type != JobTypeSysBatch {
+			mErr.Errors = append(mErr.Errors, fmt.Errorf(
+				"Parameterized job can only be used with %q or %q scheduler", JobTypeBatch, JobTypeSysBatch,
+			))
 		}
 
 		if err := j.ParameterizedJob.Validate(); err != nil {
