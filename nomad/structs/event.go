@@ -3,6 +3,7 @@ package structs
 import (
 	"fmt"
 	"net/url"
+	"reflect"
 	"strings"
 
 	multierror "github.com/hashicorp/go-multierror"
@@ -157,4 +158,15 @@ func (e *EventSink) Validate() error {
 	}
 
 	return mErr.ErrorOrNil()
+}
+
+// Changed specifies if this event sink has changed in a way that would affect
+// a stream subscription or sink writer
+func (e *EventSink) Changed(old *EventSink) bool {
+	if e.Address != old.Address ||
+		e.Type != old.Type ||
+		!reflect.DeepEqual(e.Topics, old.Topics) {
+		return true
+	}
+	return false
 }
