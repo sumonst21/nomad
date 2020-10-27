@@ -73,7 +73,10 @@ module('Acceptance | optimize', function(hooks) {
       `${this.job1.name} / ${currentTaskGroup.name}`
     );
 
-    assert.equal(Optimize.breadcrumbFor('optimize.summary').text, `${this.job1.name} / ${currentTaskGroup.name}`);
+    assert.equal(
+      Optimize.breadcrumbFor('optimize.summary').text,
+      `${this.job1.name} / ${currentTaskGroup.name}`
+    );
 
     assert.equal(Optimize.recommendationSummaries[0].namespace, this.job1.namespace);
 
@@ -239,15 +242,27 @@ module('Acceptance | optimize', function(hooks) {
 
     await Optimize.visit();
 
-    const lastSummary = Optimize.recommendationSummaries[Optimize.recommendationSummaries.length - 1];
+    const lastSummary =
+      Optimize.recommendationSummaries[Optimize.recommendationSummaries.length - 1];
     const collapsedSlug = lastSummary.slug.replace(' / ', '/');
 
     // preferable to use page object’s visitable but it encodes the slash
     await visit(`/optimize/${collapsedSlug}?namespace=${lastSummary.namespace}`);
 
-    assert.equal(`${Optimize.card.slug.jobName} / ${Optimize.card.slug.groupName}`, lastSummary.slug);
+    assert.equal(
+      `${Optimize.card.slug.jobName} / ${Optimize.card.slug.groupName}`,
+      lastSummary.slug
+    );
     assert.ok(lastSummary.isActive);
     assert.equal(currentURL(), `/optimize/${collapsedSlug}?namespace=${lastSummary.namespace}`);
+  });
+
+  test('when a summary is not found, an error message is shown, but the URL persists', async function(assert) {
+    await visit('/optimize/nonexistent/summary?namespace=anamespace');
+
+    assert.equal(currentURL(), '/optimize/nonexistent/summary?namespace=anamespace');
+    assert.ok(Optimize.applicationError.isPresent);
+    assert.equal(Optimize.applicationError.title, 'Not Found');
   });
 
   test('cannot return to already-processed summaries', async function(assert) {
