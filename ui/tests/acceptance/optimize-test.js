@@ -1,6 +1,6 @@
 import { module, test } from 'qunit';
 import { setupApplicationTest } from 'ember-qunit';
-import { currentURL } from '@ember/test-helpers';
+import { currentURL, visit } from '@ember/test-helpers';
 import { setupMirage } from 'ember-cli-mirage/test-support';
 import a11yAudit from 'nomad-ui/tests/helpers/a11y-audit';
 import Response from 'ember-cli-mirage/response';
@@ -227,6 +227,27 @@ module('Acceptance | optimize', function(hooks) {
       Optimize.recommendationSummaries[1].slug
     );
     assert.ok(Optimize.recommendationSummaries[1].isActive);
+  });
+
+  test('can visit a summary directly via URL', async function(assert) {
+    server.createList('job', 10, {
+      createRecommendations: true,
+      groupsCount: 1,
+      groupTaskCount: 2,
+      namespaceId: server.db.namespaces[1].id,
+    });
+
+    await Optimize.visit();
+
+    const lastSummary = Optimize.recommendationSummaries[Optimize.recommendationSummaries.length - 1];
+    const collapsedSlug = lastSummary.slug.replace(' / ', '/');
+
+    // preferable to use page object’s visitable but it encodes the slash
+    await visit(`/optimize/${collapsedSlug}`);
+
+    assert.equal(`${Optimize.card.slug.jobName} / ${Optimize.card.slug.groupName}`, lastSummary.slug);
+    assert.ok(lastSummary.isActive);
+    assert.equal(currentURL(), `/optimize/${collapsedSlug}`);
   });
 
   test('cannot return to already-processed summaries', async function(assert) {
