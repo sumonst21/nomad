@@ -243,11 +243,11 @@ module('Acceptance | optimize', function(hooks) {
     const collapsedSlug = lastSummary.slug.replace(' / ', '/');
 
     // preferable to use page object’s visitable but it encodes the slash
-    await visit(`/optimize/${collapsedSlug}`);
+    await visit(`/optimize/${collapsedSlug}?namespace=${lastSummary.namespace}`);
 
     assert.equal(`${Optimize.card.slug.jobName} / ${Optimize.card.slug.groupName}`, lastSummary.slug);
     assert.ok(lastSummary.isActive);
-    assert.equal(currentURL(), `/optimize/${collapsedSlug}`);
+    assert.equal(currentURL(), `/optimize/${collapsedSlug}?namespace=${lastSummary.namespace}`);
   });
 
   test('cannot return to already-processed summaries', async function(assert) {

@@ -12,8 +12,8 @@ export default class OptimizeSummaryRoute extends Route {
     ];
   }
 
-  async model({ slug }) {
-    return this.modelFor('optimize').findBy('slug', slug);
+  async model({ jobNamespace, slug }) {
+    return this.modelFor('optimize').find(summary => summary.slug === slug && summary.jobNamespace === jobNamespace);
   }
 
   async afterModel(model) {

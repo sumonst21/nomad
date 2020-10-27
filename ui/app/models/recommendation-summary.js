@@ -10,6 +10,7 @@ export default class RecommendationSummary extends Model {
 
   @belongsTo('job') job;
   @attr('string') jobId;
+  @attr('string') jobNamespace;
 
   @attr('date') submitTime;
   @attr('string') taskGroupName;

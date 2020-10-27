@@ -22,8 +22,8 @@ module('Integration | Component | das/recommendation-card', function(hooks) {
         this._super(...arguments);
       },
 
-      urlFor(route, slug) {
-        return `${route}:${slug}`;
+      urlFor(route, slug, { queryParams: { namespace }}) {
+        return `${route}:${slug}?namespace=${namespace}`;
       }
     });
 
@@ -46,6 +46,7 @@ module('Integration | Component | das/recommendation-card', function(hooks) {
     this.set(
       'summary',
       new MockRecommendationSummary({
+        jobNamespace: 'namespace',
         recommendations: [
           {
             resource: 'MemoryMB',
@@ -119,7 +120,7 @@ module('Integration | Component | das/recommendation-card', function(hooks) {
     assert.equal(RecommendationCard.totalsTable.percentDiff.memory, '+33%');
 
     assert.equal(RecommendationCard.copyButton.text, 'job-name / group-name');
-    assert.ok(RecommendationCard.copyButton.clipboardText.endsWith('optimize.summary:job-name/group-name'));
+    assert.ok(RecommendationCard.copyButton.clipboardText.endsWith('optimize.summary:job-name/group-name?namespace=namespace'));
 
     assert.equal(RecommendationCard.activeTask.totalsTable.current.cpu.text, '150 MHz');
     assert.equal(RecommendationCard.activeTask.totalsTable.current.memory.text, '128 MiB');
