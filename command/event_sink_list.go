@@ -1,5 +1,11 @@
 package command
 
+import (
+	"fmt"
+
+	"github.com/hashicorp/nomad/api"
+)
+
 type EventSinkListCommand struct {
 	Meta
 }
@@ -38,12 +44,19 @@ func (c *EventSinkListCommand) Run(args []string) int {
 		return 1
 	}
 
-	// client, err := c.Meta.Client()
-	// if err != nil {
-	// 	c.Ui.Error(fmt.Sprintf("Error initializing client: %s", err))
-	// 	return 1
-	// }
+	client, err := c.Meta.Client()
+	if err != nil {
+		c.Ui.Error(fmt.Sprintf("Error initializing client: %s", err))
+		return 1
+	}
 
+	sinks, _, err := client.EventSinks().List(nil)
+	if err != nil {
+		c.Ui.Error(fmt.Sprintf("Error retrieving event sinks: %s", err))
+		return 1
+	}
+
+	c.Ui.Output(formatEventSinks(sinks))
 	return 0
 }
 
@@ -51,4 +64,35 @@ func (c *EventSinkListCommand) Run(args []string) int {
 // This should be less than 50 characters ideally.
 func (e *EventSinkListCommand) Synopsis() string {
 	return "List event sinks"
+}
+
+func formatEventSinks(sinks []*api.EventSink) string {
+	if len(sinks) == 0 {
+		return "No event sinks found"
+	}
+
+	rows := make([]string, len(sinks)+1)
+	rows[0] = "ID|Type|Address|Topics|LatestIndex|"
+	for i, s := range sinks {
+		rows[i+1] = fmt.Sprintf("%s|%s|%s|%#v|%d",
+			s.ID,
+			s.Type,
+			s.Address,
+			s.Topics,
+			s.LatestIndex)
+	}
+	return formatList(rows)
+}
+
+func formatTopics(topic map[api.Topic][]string) string {
+	var out string
+
+	return out
+	// "*": "*"
+	// "Alloc": ["3b79987c-8688-44ed-8339-54f47b9fdf5e"]
+	// "Deployment:" [my-job, d30fd783-ab39-4bf5-afde-47ab7bfa9cd7]
+
+	//*:*,
+	// Alloc[1,2,3],Deployment[]
+
 }
