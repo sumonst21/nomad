@@ -22,7 +22,7 @@ func TestEvent_Stream(t *testing.T) {
 	require.NotNil(t, resp2)
 
 	// build event stream request
-	events := c.EventStream()
+	events := c.Events()
 	q := &QueryOptions{}
 	topics := map[Topic][]string{
 		"Eval": {"*"},
@@ -60,7 +60,7 @@ func TestEvent_Stream_Err_InvalidQueryParam(t *testing.T) {
 	require.NotNil(t, resp2)
 
 	// build event stream request
-	events := c.EventStream()
+	events := c.Events()
 	q := &QueryOptions{}
 	topics := map[Topic][]string{
 		"Eval": {"::*"},
@@ -89,7 +89,7 @@ func TestEvent_Stream_CloseCtx(t *testing.T) {
 	require.NotNil(t, resp2)
 
 	// build event stream request
-	events := c.EventStream()
+	events := c.Events()
 	q := &QueryOptions{}
 	topics := map[Topic][]string{
 		"Eval": {"*"},
