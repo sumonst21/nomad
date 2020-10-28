@@ -2,6 +2,8 @@ package command
 
 import (
 	"fmt"
+	"sort"
+	"strings"
 
 	"github.com/hashicorp/nomad/api"
 )
@@ -72,27 +74,31 @@ func formatEventSinks(sinks []*api.EventSink) string {
 	}
 
 	rows := make([]string, len(sinks)+1)
-	rows[0] = "ID|Type|Address|Topics|LatestIndex|"
+	rows[0] = "ID|Type|Address|Topics|LatestIndex"
 	for i, s := range sinks {
-		rows[i+1] = fmt.Sprintf("%s|%s|%s|%#v|%d",
+		rows[i+1] = fmt.Sprintf("%s|%s|%s|%s|%d",
 			s.ID,
 			s.Type,
 			s.Address,
-			s.Topics,
+			formatTopics(s.Topics),
 			s.LatestIndex)
 	}
 	return formatList(rows)
 }
 
-func formatTopics(topic map[api.Topic][]string) string {
-	var out string
+func formatTopics(topicMap map[api.Topic][]string) string {
+	var formatted []string
+	var topics []string
 
-	return out
-	// "*": "*"
-	// "Alloc": ["3b79987c-8688-44ed-8339-54f47b9fdf5e"]
-	// "Deployment:" [my-job, d30fd783-ab39-4bf5-afde-47ab7bfa9cd7]
+	for topic, _ := range topicMap {
+		topics = append(topics, string(topic))
+	}
 
-	//*:*,
-	// Alloc[1,2,3],Deployment[]
+	sort.Strings(topics)
 
+	for _, t := range topics {
+		out := fmt.Sprintf("%s[%s]", t, strings.Join(topicMap[api.Topic(t)], " "))
+		formatted = append(formatted, out)
+	}
+	return strings.Join(formatted, ",")
 }
