@@ -90,7 +90,7 @@ func formatTopics(topicMap map[api.Topic][]string) string {
 	var formatted []string
 	var topics []string
 
-	for topic, _ := range topicMap {
+	for topic := range topicMap {
 		topics = append(topics, string(topic))
 	}
 
