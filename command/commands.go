@@ -272,6 +272,11 @@ func Commands(metaPtr *Meta, agentUi cli.Ui) map[string]cli.CommandFactory {
 				Meta: meta,
 			}, nil
 		},
+		"event sink register": func() (cli.Command, error) {
+			return &EventSinkRegisterCommand{
+				Meta: meta,
+			}, nil
+		},
 		"exec": func() (cli.Command, error) {
 			return &AllocExecCommand{
 				Meta: meta,
